@@ -1,73 +1,71 @@
 
-#include <iostream>
-#include <cstdio>
-#include <queue>
-#include <vector>
+#include<iostream>
+#include<queue>
+
 using namespace std;
-
-#define INF 987654321
-
-struct Node {
-	int nodenum;
-	int dist;
-  Node(): nodenum(0), dist(0) {}
-	Node(int n, int d): nodenum(n), dist(d) {}
-};
-
-struct cmp {
-    bool operator()(Node n, Node m){
-        return n.dist > m.dist;
-    }
-};
 
 int a, b;
 int N, M;
-vector<vector<int> > edge;
-priority_queue<Node, vector<Node>, cmp> pq;
+int visited[1001];
+int parent[1001];
+vector<int> adj[1001];
 
-vector<int> dist;
-vector<bool> visit;
+void Input()
+{
+    cin >> a >> b;
+    cin >> N >> M;
 
-void find_shortest_path(int start) {
-  Node n;
-  pq.push(Node(start, 0));
-  dist[start] = 0;
-
-  while(!pq.empty()) {
-    n = pq.top();
-    pq.pop();
-    visit[n.nodenum] = true;
-
-    for(int i = 0; i < edge[n.nodenum].size(); i++) {
-      if(!visit[edge[n.nodenum][i]]) {
-        if(dist[edge[n.nodenum][i]] > n.dist + 1) {
-          dist[edge[n.nodenum][i]] = n.dist + 1;
-          pq.push(Node(edge[n.nodenum][i], n.dist + 1));
-        }
-      }
+    for (int i = 0; i < N - 1; i++)
+    {
+        visited[i] = -1;
+        parent[i] = -1;
     }
-  }
+
+    for (int i=0; i < M; i++)
+    {
+        int x, y;
+
+        cin >> x >> y;
+        adj[x].push_back(y);
+        adj[y].push_back(x);
+    }
 }
 
-int main() {
-  int tmp1, tmp2;
+void BFS()
+{
+    queue<int> Q;
 
-  scanf("%d %d", &a, &b);
-  scanf("%d %d", &N, &M);
-  edge.resize(N + 1);
-  dist.assign(N + 1, INF);
-  visit.assign(N + 1, false);
+    Q.push(a);
+    visited[a] = 1;
+    parent[a] = 0;
 
-  for(int i = 0; i < M; i++) {
-    scanf("%d %d", &tmp1, &tmp2);
-    edge[tmp1].push_back(tmp2);
-    edge[tmp2].push_back(tmp1);
-  }
+    while (!Q.empty())
+    {
+        int curr = Q.front();
+        Q.pop();
 
-  find_shortest_path(a);
+        if (curr == b)
+            break;
 
-  if(dist[b] == INF)
-    printf("-1\n");
-  else
-    printf("%d\n", dist[b]);
+        for (int i = 0; i < adj[curr].size(); i++)
+        {
+            int next = adj[curr][i];
+
+            if (visited[i] == -1)
+            {
+                Q.push(next);
+                parent[next] = curr;
+                visited[next] = visited[parent[next]] + 1;
+            }
+        }
+    }
+
+}
+
+int main()
+{
+    Input();
+    BFS();
+    cout << visited[b];
+    return 0;
 }
